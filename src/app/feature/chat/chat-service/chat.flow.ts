@@ -1,5 +1,6 @@
 import { Subject, Observable, of } from 'rxjs';
 import { IRapidProMessage } from './chat.service';
+import { RapidProFlowExport } from './rapid-pro-export.model';
 
 export interface ChatFlow {
     sendMessage(msg: string): Observable<any>;
@@ -36,7 +37,6 @@ export class RapidProOfflineFlow implements ChatFlow {
                 let text = "Next flow " + action.flow.name;
                 this.messageSubject.next({
                     message: text,
-                    body: text,
                     message_id: action.uuid,
                     title: this.flowObject.name,
                     type: "rapidpro",
@@ -142,7 +142,6 @@ export class RapidProOfflineFlow implements ChatFlow {
         let text = action.text;
         this.messageSubject.next({
             message: text,
-            body: text,
             message_id: action.uuid,
             title: this.flowObject.name,
             type: "rapidpro",
