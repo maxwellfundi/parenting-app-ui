@@ -32,4 +32,32 @@ export class LocalStorageService {
       return null;
     }
   }
+
+  setBoolean(key: string, value: boolean) {
+    this.setString(key, "" + value);
+  }
+
+  getBoolean(key: string): boolean | null {
+    const result = localStorage.getItem(key);
+    if (result === null) {
+      return null;
+    }
+    return result === "true";
+  }
+
+  getFloat(key: string): number {
+    const result = localStorage.getItem(key);
+    if (result === null) {
+      return null;
+    }
+    return Number.parseFloat(result);
+  }
+
+  setFloat(key: string, value: number) {
+    this.setString(key, "" + value);
+  }
+
+  clear() {
+    localStorage.clear();
+  }
 }

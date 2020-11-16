@@ -1,5 +1,6 @@
 import { NgModule } from "@angular/core";
 import { BrowserModule } from "@angular/platform-browser";
+import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { RouteReuseStrategy } from "@angular/router";
 import { HttpClientModule } from "@angular/common/http";
 import { AngularFireModule } from "@angular/fire";
@@ -15,26 +16,22 @@ import { AppRoutingModule } from "./app-routing.module";
 import { SharedModule } from "./shared/shared.module";
 
 import { environment } from "src/environments/environment";
-import { IntroTutorialPageModule } from "./feature/intro-tutorial/intro-tutorial.module";
 import { PrivacyPageModule } from "./feature/privacy/privacy.module";
 import { AppTermsPageModule } from "./feature/app-terms/app-terms.module";
-import { ChatService } from './shared/services/chat/chat.service';
-import { OfflineChatService } from './shared/services/chat/offline/offline-chat.service';
-import { OnlineChatService } from './shared/services/chat/online/online-chat.service';
-import { FormsModule } from '@angular/forms';
+import { ThemeEditorComponent } from 'src/app/feature/theme/theme-editor/theme-editor.component';
+import { ColorSketchModule } from 'ngx-color/sketch';
+import { FormsModule } from "@angular/forms";
+import { SurveyModule } from "src/app/feature/survey/survey.module";
 
-const introModules = [
-  IntroTutorialPageModule,
-  AppTermsPageModule,
-  PrivacyPageModule,
-];
+const introModules = [AppTermsPageModule, PrivacyPageModule];
 
 @NgModule({
-  declarations: [AppComponent],
+  declarations: [AppComponent, ThemeEditorComponent],
 
   entryComponents: [],
   imports: [
     BrowserModule,
+    BrowserAnimationsModule,
     IonicModule.forRoot(),
     AppRoutingModule,
     HttpClientModule,
@@ -42,11 +39,12 @@ const introModules = [
     AngularFireModule.initializeApp(environment.firebaseConfig),
     AngularFireAuthModule,
     FormsModule,
+    ColorSketchModule,
     ...introModules,
+    SurveyModule,
   ],
   providers: [
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
-    { provide: ChatService, useClass: OnlineChatService },
     HTTP,
     Device,
   ],
