@@ -21,10 +21,10 @@
   overflow-y: auto;
   background-color: #ffff83;
   opacity: 1;
-	animation-name: fadeInOpacity;
-	animation-iteration-count: 1;
-	animation-timing-function: ease-in;
-	animation-duration: 1s;
+  animation-name: fadeInOpacity;
+  animation-iteration-count: 1;
+  animation-timing-function: ease-in;
+  animation-duration: 1s;
 
   .story-image {
     border-radius: 30px;
@@ -45,12 +45,12 @@
 }
 
 @keyframes fadeInOpacity {
-	0% {
-		opacity: 0;
-	}
-	100% {
-		opacity: 1;
-	}
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
 }
 
 .bot-blob {
@@ -90,7 +90,6 @@
 }
 
 .msg-container {
-
   margin-bottom: 20px;
 
   .msg-bubble-container {
@@ -133,14 +132,16 @@
   align-self: flex-end;
   width: 100%;
   display: flex;
-  overflow-y: auto;
   flex-wrap: wrap;
   padding: 16px;
 }
 
 .response-option {
-  color: #0d4060;
-  border-color: #0d4060;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  color: var(--ion-primary-color, #0d4060);
+  border-color: var(--ion-primary-color, #0d4060);
   background-color: transparent;
   padding: 7px;
   font-size: 14px;
@@ -150,9 +151,16 @@
   border-width: 3px;
   white-space: nowrap;
 
+  span {
+    text-align: center;
+  }
+
   &.large {
     font-size: 40px;
-    border-radius: 40px;;
+    border-radius: 40px;
+  }
+  img {
+    max-height: 150px;
   }
 }
 

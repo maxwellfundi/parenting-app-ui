@@ -1,6 +1,9 @@
+name: Build and Upload
 on:
-  pull_request
-  
+  push:
+    branches:
+      - master
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -9,6 +12,10 @@ jobs:
         node-version: [12.x]
 
     steps:
+      - name: Install crcmod
+        run: |
+          sudo apt-get install gcc python-dev python-setuptools
+          sudo pip install -I --no-cache-dir -U crcmod
       - uses: actions/checkout@v1
         with:
           lfs: true
@@ -25,18 +32,23 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
-      - name: Get Package version
-        id: package-version
-        uses: martinbeentjes/npm-get-version-action@master
+      - name: Setup GCloud
+        uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+        with:
+          version: '290.0.1'
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          service_account_key: ${{ secrets.GCP_CREDENTIALS }}
+          export_default_credentials: true
+      - run: gcloud info
       - name: Populate firebaseConfig.ts
-        env: 
+        env:
           FIREBASE_CONFIG_TS: ${{ secrets.FIREBASE_CONFIG_TS }}
         run: echo $FIREBASE_CONFIG_TS > src/environments/firebaseConfig.ts
-      - name: Populate google-services.json
-        env:
-          GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
-        run: echo $GOOGLE_SERVICES_JSON > android/app/google-services.json
       - name: npm install
         run: npm install
       - name: npm run build
         run: npm run build
+      - id: upload-files
+        name: Upload files to Google Cloud Storage (rsync)
+        timeout-minutes: 15
+        run: gsutil rsync -d -R -c ./www gs://parenting-app-ui-master1/ && gsutil web set -m index.html gs://parenting-app-ui-master1/
