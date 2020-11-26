@@ -1,19 +1,24 @@
-import { NgModule } from '@angular/core';
-import { Routes, RouterModule } from '@angular/router';
-
-import { ChatPage } from './chat.page';
-import { SharedModule } from 'src/app/shared/shared.module';
-import { ChatActionComponent } from './chat-action/chat-action.component';
+import { NgModule } from "@angular/core";
+import { Routes, RouterModule } from "@angular/router";
+import { ChatActionComponent } from "./components/chat-action/chat-action.component";
+import { ChatPage } from "./components/chat.page";
+import { CanDeactivateChat } from './guards/can-deactivate-chat';
 
 const routes: Routes = [
+  // default chat page flow
   {
-    path: '',
-    component: ChatPage
+    path: "",
+    redirectTo: "flow/Chat Content flow",
   },
   {
-    path: 'action/:actionType',
-    component: ChatActionComponent
-  }
+    path: "flow/:flowName",
+    component: ChatPage,
+    canDeactivate: [CanDeactivateChat]
+  },
+  {
+    path: "action/:actionType",
+    component: ChatActionComponent,
+  },
 ];
 
 @NgModule({
