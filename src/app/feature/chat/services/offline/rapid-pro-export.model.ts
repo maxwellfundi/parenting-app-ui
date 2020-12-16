@@ -15,9 +15,11 @@ export namespace RapidProFlowExport {
     addresses?: string[];
     subject?: string;
     attachments?: string[];
-    field?: { key: string; name: string };
+    field?: { key?: string; name?: string };
     value?: string;
-    flow?: { uuid: string; name: string };
+    // This used to go to another flow. Rapid Pro uses flow unique id (uuid) to pick which flow to go to
+    // The IDEMS version uses name which we assume to be unique
+    flow?: { uuid?: string; name: string };
     name?: string;
   }
 
@@ -137,17 +139,5 @@ export namespace RapidProFlowExport {
     triggers: any[];
     fields: any[];
     groups: Group[];
-  }
-
-  // when imported type-checking is only supported on weaker typed fields
-  // or specifying 'as const' in all child string fields
-  export interface RootObjectImported {
-    version: string;
-    site: string;
-    flows: any[];
-    campaigns: any[];
-    triggers: any[];
-    fields: any[];
-    groups: any[];
   }
 }

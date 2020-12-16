@@ -1,43 +1,77 @@
-import { RapidProFlowExport } from "src/app/feature/chat/models";
-import Completions from "../../../../data/completions";
-import Conversation from "../../../../data/conversation";
-import Goals from "../../../../data/goals";
-import Reminders from "../../../../data/reminders";
-import Tasks from "../../../../data/tasks";
-import Tips from "../../../../data/tips";
+import { Injectable } from "@angular/core";
+import { FlowTypes } from "src/app/shared/model/flowTypes";
+
+import { completion_list } from "src/data/completion_list";
+import { conversation } from "src/data/conversation";
+import { goal_list } from "src/data/goal_list";
+import { habit_list } from "src/data/habit_list";
+import { reminder_list } from "src/data/reminder_list";
+import { task_list } from "src/data/task_list";
+import { tips } from "src/data/tips";
+import { module_list } from "src/data/module_list";
+import { module_page } from "src/data/module_page";
+
+export const COMPLETION_LIST = completion_list;
+export const CONVERSATION = conversation;
+export const GOAL_LIST = goal_list;
+export const HABIT_LIST = habit_list;
+export const MODULE_LIST = module_list;
+export const MODULE_PAGE = module_page;
+export const REMINDER_LIST = reminder_list;
+export const TASK_LIST = task_list;
+export const TIPS = tips;
+
+/** A simple variable just to type-check/ensure all data types have been exported in this file */
+const mapping: { [key in FlowTypes.FlowType] } = {
+  completion_list: COMPLETION_LIST,
+  conversation: CONVERSATION,
+  goal_list: GOAL_LIST,
+  habit_list: HABIT_LIST,
+  module_list: MODULE_LIST,
+  module_page: MODULE_PAGE,
+  reminder_list: REMINDER_LIST,
+  task_list: TASK_LIST,
+  tips: TIPS,
+};
 
 /**
- * Data files are imported and re-exported here to allow for easier import and
- * rough type-checking. Note it is a slightly messy process as typings have to
- * be made looser when importing and then tightened after
+ * The data service has been through a couple iterations, currently the
+ * main purpose is to re-export data from the data folder, but also has
+ * a more general lookup which is used by task actions
  */
 
-let COMPLETIONS: IFlowMetaImported[] = Completions;
-let CONVERSATION: RapidProFlowExport.RootObjectImported[] = Conversation;
-let GOALS: IFlowMetaImported[] = Goals;
-let REMINDERS: IFlowMetaImported[] = Reminders;
-let TASKS: IFlowMetaImported[] = Tasks;
-let TIPS: IFlowMetaImported[] = Tips;
+@Injectable({ providedIn: "root" })
+export class PLHDataService {
+  private allFlowsByName: { [flow_name: string]: any };
+  constructor() {
+    this.allFlowsByName = this.listAllFlowsByName();
+  }
 
-export type IFlowType = "completions" | "conversation" | "goals" | "reminders" | "tasks" | "tips";
+  getFlowByName<T>(flow_name: string) {
+    return this.allFlowsByName[flow_name] as T;
+  }
 
-interface IFlowMetaImported {
-  flow_name: string;
-  flow_type: string;
-  /** Used to hide unfinished content from the app */
-  status: string;
-  /** Specific flow data rows */
-  data: any[];
-  module?: string;
-  // additional flowType-specific fields
-  [key: string]: any;
+  /** Simple function to create a hashmap of all flows by name */
+  private listAllFlowsByName() {
+    const flowsByName: { [flow_name: string]: any } = {};
+    // Handle default flows
+    const flowTypes = Object.values(mapping) as FlowTypes.FlowTypeBase[][];
+    console.log("mapping flowTypes", flowTypes);
+    flowTypes.forEach((flows) => {
+      flows.forEach((flow) => {
+        if (flow.flow_name) {
+          flowsByName[flow.flow_name] = flow;
+        }
+      });
+    });
+    // Handle conversation flows
+    CONVERSATION.forEach((c) => {
+      c.flows.forEach((flow) => {
+        const flow_name = flow.name;
+        flowsByName[flow_name] = flow;
+      });
+    });
+
+    return flowsByName;
+  }
 }
-// Exported flows contain all the fields of imported flow meta above
-// but add additional data type restrictions that can't be applied when importing
-export interface IFlowMeta extends IFlowMetaImported {
-  flow_type: IFlowType;
-  /** Used to hide unfinished content from the app */
-  status: "draft" | "released";
-}
-
-export { COMPLETIONS, CONVERSATION, GOALS, REMINDERS, TASKS, TIPS };

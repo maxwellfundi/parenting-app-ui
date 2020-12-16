@@ -1,5 +1,6 @@
 import * as fs from "fs-extra";
 import * as path from "path";
+import NodeRSA from "node-rsa";
 
 /** Split an array into an array of arrays of a given chunk size */
 export function ArrayToChunks(array: any[], chunk_size: number) {
@@ -52,4 +53,46 @@ export function groupJsonByKey<T>(json: T[], key: string) {
     }
   });
   return byKey;
+}
+
+/**
+ * Convert an object array into a json object, with keys corresponding to array entries
+ * @param keyfield any unique field which all array objects contain to use as hash keys (e.g. 'id')
+ */
+export function arrayToHashmap<T>(arr: T[], keyfield: string): { [key: string]: T } {
+  const hashmap: { [key: string]: T } = {};
+  for (const el of arr) {
+    if (el.hasOwnProperty(keyfield)) {
+      hashmap[el[keyfield]] = el;
+    }
+  }
+  return hashmap;
+}
+
+export function decryptFolder(folderPath: string, privateKeyPath: string) {
+  const privateKeyData = fs.readFileSync(privateKeyPath);
+  const key = new NodeRSA().importKey(privateKeyData, "private");
+  for (const filePath of fs.readdirSync(folderPath)) {
+    if (filePath.endsWith(".enc")) {
+      const encryptedData = fs.readFileSync(`${folderPath}/${filePath}`);
+      const decryptedData = key.decrypt(encryptedData);
+      fs.writeFileSync(`${folderPath}/${filePath.replace(".enc", "")}`, decryptedData);
+    }
+  }
+}
+
+export function encryptFolder(
+  folderPath: string,
+  publicKeyPath: string,
+  exclusions: string[] = []
+) {
+  const publicKeyData = fs.readFileSync(publicKeyPath);
+  const key = new NodeRSA().importKey(publicKeyData, "public");
+  fs.readdirSync(folderPath).forEach((filename) => {
+    if (!exclusions.includes(filename) && path.extname(filename) !== ".enc") {
+      const decryptedData = fs.readFileSync(`${folderPath}/${filename}`);
+      const encryptedData = key.encrypt(decryptedData);
+      fs.writeFileSync(`${folderPath}/${filename}.enc`, encryptedData);
+    }
+  });
 }

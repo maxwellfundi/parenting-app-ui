@@ -1,8 +1,7 @@
-import { ConversationExcelRow, RapidProFlowExport } from "./conversation.models";
 import { v4 as uuidv4 } from "uuid";
 import chalk from "chalk";
-import { DefaultParser } from "../default/default.parser";
-import { IContentFlow } from "../../types";
+import { FlowTypes, RapidProFlowExport } from "../../../../types";
+import { AbstractParser } from "../abstract.parser";
 
 // Default settings
 const version: string = "13";
@@ -13,12 +12,33 @@ const flowType: string = "messaging";
 const defaultRevision: number = 0;
 const flowExpireAfterMinutes: number = 60;
 
-export class ConversationParser extends DefaultParser {
-  private generateUUID() {
-    return uuidv4();
+type EntityType = "flow" | "node" | "action" | "router" | "case" | "category" | "exit";
+
+export class ConversationParser implements AbstractParser {
+  /** @param deployTarget uuids and media paths may be formatted differently depending on target */
+  constructor(private deployTarget: "app" | "rapidpro" = "app") {}
+  conversationSheet: FlowTypes.ConversationSheet;
+
+  flowEntityIdCounterMap: { [flowName: string]: { [entityType: string]: number } } = {};
+
+  private deterministicUUID(flowName: string, entityType: EntityType) {
+    if (!this.flowEntityIdCounterMap[flowName]) {
+      this.flowEntityIdCounterMap[flowName] = {};
+    }
+    if (!this.flowEntityIdCounterMap[flowName].hasOwnProperty(entityType)) {
+      this.flowEntityIdCounterMap[flowName][entityType] = 0;
+    } else {
+      this.flowEntityIdCounterMap[flowName][entityType]++;
+    }
+    // TODO - counter could probably be replaced by the row_id for nodes
+    const counter = this.flowEntityIdCounterMap[flowName][entityType];
+    const identifier = "uuid_" + flowName + "_" + entityType + "_" + counter;
+    // rapidpro needs strict uuidv4, so only use custom identifiers with the app
+    return this.deployTarget === "app" ? identifier : uuidv4();
   }
 
-  public convert(contentFlow: IContentFlow): RapidProFlowExport.RootObject {
+  public run(conversation: FlowTypes.ConversationSheet): RapidProFlowExport.RootObject {
+    this.conversationSheet = conversation;
     const rapidProExportObject: RapidProFlowExport.RootObject = {
       campaigns: [],
       fields: [],
@@ -28,13 +48,13 @@ export class ConversationParser extends DefaultParser {
       triggers: [],
       version,
     };
-    const rows = contentFlow.data as ConversationExcelRow[];
+    const rows = conversation.rows;
     try {
       this.setRowIDs(rows);
       // TODO Also need to consider case of updating an existing flow.
       let flow: RapidProFlowExport.Flow = {
-        name: contentFlow.flow_name,
-        uuid: this.generateUUID(),
+        name: conversation.flow_name,
+        uuid: this.deterministicUUID(conversation.flow_name, "flow"),
         // TODO This metadata should possibly be passed in from the "Content list" Excel sheet.
         spec_version: flowSpecVersion,
         language: flowLanguage,
@@ -51,7 +71,7 @@ export class ConversationParser extends DefaultParser {
       const nodesById: { [nodeId: string]: RapidProFlowExport.Node } = {};
       for (let rowIndex = 0; rowIndex < rows.length; rowIndex++) {
         const row = rows[rowIndex];
-        let nodeId = this.generateUUID();
+        let nodeId = this.deterministicUUID(conversation.flow_name, "node");
         row.nodeUUIDForExit = nodeId;
 
         let actionNode: RapidProFlowExport.Node = {
@@ -83,22 +103,38 @@ export class ConversationParser extends DefaultParser {
           if (row.character) add_texts.push("character=" + row.character);
           if (row.choose_multi) add_texts.push("chooseMulti=true");
           if (row.display_as_tick) add_texts.push("displayAsTick=true");
-          if (row.ticked_by_default) add_texts.push("tickedByDefault=true");
+          if (row.ticked_by_default + "" === "false") {
+            add_texts.push("tickedByDefault=false");
+          } else if (row.display_as_tick) {
+            add_texts.push("tickedByDefault=true");
+          }
           if (row.choice_media_display)
             add_texts.push("choiceMediaDisplay=" + row.choice_media_display);
+          
+          let choiceMediaUrls: string[] = [];
+          let hasMediaUrls = false;
+          for (var i = 1; i < 10; i++) {
+            if (row["choice_" + i + "_media"]) {
+              hasMediaUrls = true;
+            }
+            choiceMediaUrls.push(row["choice_" + i + "_media"]);
+          }
+          if (hasMediaUrls) {
+            add_texts.push("choiceMediaUrls=" + encodeURIComponent(JSON.stringify(choiceMediaUrls)));
+          }
           if (add_texts.length > 0) action_text += " " + link_text + add_texts.join("&");
           actionNode.actions.push({
             attachments: this.getMediaAttachments(row.media),
             text: action_text,
             type: "send_msg",
             quick_replies: this.getRowChoices(row),
-            uuid: this.generateUUID(),
+            uuid: this.deterministicUUID(conversation.flow_name, "action"),
           });
           row._rapidProNode = actionNode;
           nodesById[nodeId] = actionNode;
           if (row.save_name) {
             let resultNode: RapidProFlowExport.Node = {
-              uuid: this.generateUUID(),
+              uuid: this.deterministicUUID(conversation.flow_name, "node"),
               actions: [],
               exits: [this.createEmptyExit()],
               router: {
@@ -107,7 +143,7 @@ export class ConversationParser extends DefaultParser {
                 cases: [],
                 categories: [
                   {
-                    uuid: this.generateUUID(),
+                    uuid: this.deterministicUUID(conversation.flow_name, "category"),
                     name: "All Responses",
                     exit_uuid: null,
                   },
@@ -125,10 +161,10 @@ export class ConversationParser extends DefaultParser {
             // The initial node exits to the resultNode
             actionNode.exits[0].destination_uuid = resultNode.uuid;
             let saveNode: RapidProFlowExport.Node = {
-              uuid: this.generateUUID(),
+              uuid: this.deterministicUUID(conversation.flow_name, "node"),
               actions: [
                 {
-                  uuid: this.generateUUID(),
+                  uuid: this.deterministicUUID(conversation.flow_name, "action"),
                   type: "set_contact_field",
                   field: {
                     // Can these be the same?
@@ -149,10 +185,9 @@ export class ConversationParser extends DefaultParser {
           actionNode.actions.push({
             flow: {
               name: row.message_text,
-              uuid: this.generateUUID(),
             },
             type: "enter_flow",
-            uuid: this.generateUUID(),
+            uuid: this.deterministicUUID(conversation.flow_name, "action"),
           });
           this.setEnterFlowRouterAndExits(actionNode);
           row._rapidProNode = actionNode;
@@ -168,15 +203,14 @@ export class ConversationParser extends DefaultParser {
           nodesById[nodeId] = actionNode;
           if (row.message_text) {
             let enterFlowNode: RapidProFlowExport.Node = {
-              uuid: this.generateUUID(),
+              uuid: this.deterministicUUID(conversation.flow_name, "node"),
               actions: [
                 {
                   flow: {
                     name: row.message_text,
-                    uuid: this.generateUUID(),
                   },
                   type: "enter_flow",
-                  uuid: this.generateUUID(),
+                  uuid: this.deterministicUUID(conversation.flow_name, "action"),
                 },
               ],
               exits: [this.createEmptyExit()],
@@ -235,7 +269,7 @@ export class ConversationParser extends DefaultParser {
       rapidProExportObject.flows.push(flow);
       return rapidProExportObject;
     } catch (error) {
-      console.log(contentFlow);
+      console.log(conversation);
       console.log(chalk.red(error));
       process.exit(1);
     }
@@ -245,35 +279,35 @@ export class ConversationParser extends DefaultParser {
   private setEnterFlowRouterAndExits(node: RapidProFlowExport.Node) {
     let exits: RapidProFlowExport.Exit[] = [
       {
-        uuid: this.generateUUID(),
+        uuid: this.deterministicUUID(this.conversationSheet.flow_name, "exit"),
         destination_uuid: null,
       },
       {
-        uuid: this.generateUUID(),
+        uuid: this.deterministicUUID(this.conversationSheet.flow_name, "exit"),
         destination_uuid: null,
       },
     ];
     let categories: RapidProFlowExport.Category[] = [
       {
-        uuid: this.generateUUID(),
+        uuid: this.deterministicUUID(this.conversationSheet.flow_name, "category"),
         name: "Complete",
         exit_uuid: exits[0].uuid,
       },
       {
-        uuid: this.generateUUID(),
+        uuid: this.deterministicUUID(this.conversationSheet.flow_name, "category"),
         name: "Expired",
         exit_uuid: exits[1].uuid,
       },
     ];
     let cases: RapidProFlowExport.RouterCase[] = [
       {
-        uuid: this.generateUUID(),
+        uuid: this.deterministicUUID(this.conversationSheet.flow_name, "case"),
         type: "has_only_text",
         arguments: ["completed"],
         category_uuid: categories[0].uuid,
       },
       {
-        uuid: this.generateUUID(),
+        uuid: this.deterministicUUID(this.conversationSheet.flow_name, "case"),
         type: "has_only_text",
         arguments: ["expired"],
         category_uuid: categories[1].uuid,
@@ -290,7 +324,7 @@ export class ConversationParser extends DefaultParser {
     node.exits = exits;
   }
 
-  private setRowIDs(rows: ConversationExcelRow[]) {
+  private setRowIDs(rows: FlowTypes.ConversationRow[]) {
     let nullRows = rows.filter((row) => row.row_id === undefined);
 
     if (nullRows.length === rows.length) {
@@ -308,7 +342,7 @@ export class ConversationParser extends DefaultParser {
     }
   }
 
-  private getFromRowIndices(row: ConversationExcelRow): string[] {
+  private getFromRowIndices(row: FlowTypes.ConversationRow): string[] {
     if (row.from) {
       return row.from
         .toString()
@@ -319,16 +353,16 @@ export class ConversationParser extends DefaultParser {
   }
 
   private getFromRows(
-    row: ConversationExcelRow,
-    rows: ConversationExcelRow[]
-  ): ConversationExcelRow[] {
+    row: FlowTypes.ConversationRow,
+    rows: FlowTypes.ConversationRow[]
+  ): FlowTypes.ConversationRow[] {
     let ind = this.getFromRowIndices(row);
     return rows.filter((curr_row) => ind.includes(curr_row.row_id.toString()));
   }
 
   private getFromNodes(
-    row: ConversationExcelRow,
-    rows: ConversationExcelRow[]
+    row: FlowTypes.ConversationRow,
+    rows: FlowTypes.ConversationRow[]
   ): RapidProFlowExport.Node[] {
     return this.getFromRows(row, rows)
       .map((row) => row._rapidProNode)
@@ -336,8 +370,8 @@ export class ConversationParser extends DefaultParser {
   }
 
   private getRoutersFromRow(
-    currentRow: ConversationExcelRow,
-    rows: ConversationExcelRow[],
+    currentRow: FlowTypes.ConversationRow,
+    rows: FlowTypes.ConversationRow[],
     nodesById: { [nodeId: string]: RapidProFlowExport.Node }
   ): RapidProFlowExport.Node[] {
     const fromNodes = this.getFromNodes(currentRow, rows);
@@ -371,7 +405,7 @@ export class ConversationParser extends DefaultParser {
 
   private createEmptyExit(): RapidProFlowExport.Exit {
     let exit: RapidProFlowExport.Exit = {
-      uuid: this.generateUUID(),
+      uuid: this.deterministicUUID(this.conversationSheet.flow_name, "exit"),
       destination_uuid: null,
     };
     return exit;
@@ -383,12 +417,12 @@ export class ConversationParser extends DefaultParser {
     routerType: "switch" | string = "switch",
     defaultName: string = "All Responses"
   ): RapidProFlowExport.Node {
-    let nodeId = this.generateUUID();
+    let nodeId = this.deterministicUUID(this.conversationSheet.flow_name, "node");
     let emptyExit = this.createEmptyExit();
     let otherCategory = {
       exit_uuid: emptyExit.uuid,
       name: defaultName,
-      uuid: this.generateUUID(),
+      uuid: this.deterministicUUID(this.conversationSheet.flow_name, "category"),
     };
 
     let newRouterNode: RapidProFlowExport.Node = {
@@ -414,8 +448,8 @@ export class ConversationParser extends DefaultParser {
   // Adds a condition to a router node based on the condition information in a row.
   private addConditionToRouterNode(
     routerNode: RapidProFlowExport.Node,
-    row: ConversationExcelRow,
-    rows: ConversationExcelRow[],
+    row: FlowTypes.ConversationRow,
+    rows: FlowTypes.ConversationRow[],
     // TODO This could be more global?
     defaultType: RapidProFlowExport.RouterCaseType = "has_only_phrase"
   ) {
@@ -471,7 +505,7 @@ export class ConversationParser extends DefaultParser {
         choiceCategory = {
           exit_uuid: exit.uuid,
           name: row.condition,
-          uuid: this.generateUUID(),
+          uuid: this.deterministicUUID(this.conversationSheet.flow_name, "category"),
         };
         let choiceCases: RapidProFlowExport.RouterCase[] = [];
         // For "has_any_word" arguments is a list of length one with all words separate by spaces.
@@ -482,7 +516,7 @@ export class ConversationParser extends DefaultParser {
               arguments: conds,
               category_uuid: choiceCategory.uuid,
               type,
-              uuid: this.generateUUID(),
+              uuid: this.deterministicUUID(this.conversationSheet.flow_name, "case"),
             },
           ];
           // For phrases need one case per phrase linked to the same category. arguments is a list of length one with the phrase.
@@ -492,7 +526,7 @@ export class ConversationParser extends DefaultParser {
               arguments: [con],
               category_uuid: choiceCategory.uuid,
               type,
-              uuid: this.generateUUID(),
+              uuid: this.deterministicUUID(this.conversationSheet.flow_name, "case"),
             });
           }
         } else {
@@ -503,7 +537,7 @@ export class ConversationParser extends DefaultParser {
               arguments: conds,
               category_uuid: choiceCategory.uuid,
               type,
-              uuid: this.generateUUID(),
+              uuid: this.deterministicUUID(this.conversationSheet.flow_name, "case"),
             },
           ];
         }
@@ -521,12 +555,12 @@ export class ConversationParser extends DefaultParser {
   }
 
   private processRouterRow(
-    row: ConversationExcelRow,
-    rows: ConversationExcelRow[],
+    row: FlowTypes.ConversationRow,
+    rows: FlowTypes.ConversationRow[],
     flow: RapidProFlowExport.Flow
   ) {
     let fromNodes = this.getFromNodes(row, rows);
-    let fromRows: ConversationExcelRow[];
+    let fromRows: FlowTypes.ConversationRow[];
     let routerNode: RapidProFlowExport.Node;
     let newRouterNode: RapidProFlowExport.Node;
     let first: boolean = true;
@@ -604,7 +638,7 @@ export class ConversationParser extends DefaultParser {
     }
   }
 
-  private getRowChoices(row: ConversationExcelRow): string[] {
+  private getRowChoices(row: FlowTypes.ConversationRow): string[] {
     let quick_replies: string[] = [];
     for (let i = 1; i <= 12; i++) {
       if (row["choice_" + i] !== undefined) {
@@ -623,16 +657,17 @@ export class ConversationParser extends DefaultParser {
     return mediaText.split(";").map((s) => "image:" + s.trim());
   }
 
-  private createSaveAction(fieldName: string, value: string): RapidProFlowExport.Action {
+  private createSaveAction(fieldKey: string, value: string): RapidProFlowExport.Action {
+    const stringValue = "" + value;
     return {
-      uuid: this.generateUUID(),
+      uuid: this.deterministicUUID(this.conversationSheet.flow_name, "action"),
       type: "set_contact_field",
       field: {
         // Can these be the same?
-        key: fieldName,
-        name: fieldName,
+        key: fieldKey,
+        name: fieldKey,
       },
-      value,
+      value: stringValue
     };
   }
 }
