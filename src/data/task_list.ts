@@ -17,9 +17,12 @@
           "repeat_on_completion",
           "habits"
         ],
+        "start_action": "start_new_flow",
         "requires_list": [
           "task_mod_welcome_self-care_package"
-        ]
+        ],
+        "flow_type": "conversation",
+        "flow_name": "calm_random"
       },
       {
         "id": "task_relax_custom_completed_goal",
@@ -221,6 +224,16 @@
     "status": "released",
     "rows": [
       {
+        "id": "task_mod_welcome_give",
+        "label": "See what this app will give you",
+        "groups_list": [
+          "module"
+        ],
+        "start_action": "start_new_flow",
+        "flow_type": "conversation",
+        "flow_name": "mod_welcome_give"
+      },
+      {
         "id": "task_mod_welcome_self-care_package",
         "label": "Your customised self-care package",
         "groups_list": [
@@ -249,16 +262,6 @@
         "start_action": "start_new_flow",
         "flow_type": "conversation",
         "flow_name": "mod_welcome_survey"
-      },
-      {
-        "id": "task_mod_welcome_photo_activity",
-        "label": "Upload a family picture",
-        "groups_list": [
-          "module"
-        ],
-        "start_action": "start_new_flow",
-        "flow_type": "conversation",
-        "flow_name": "mod_welcome_photo_activity"
       },
       {
         "id": "task_mod_welcome_completed_goal",

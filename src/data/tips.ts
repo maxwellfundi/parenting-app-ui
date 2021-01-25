@@ -281,21 +281,72 @@
   },
   {
     "flow_type": "tips",
-    "module": "ONE_ON_ONE_TIME",
-    "flow_name": "mod_1on1_tips",
-    "title": "One-on-One Time Tips",
+    "module": "welcome",
+    "flow_name": "mod_welcome_tips",
+    "title": "Self-Care Tools",
     "status": "released",
     "rows": [
       {
         "type": "title",
-        "message_text": "One-on-One Time Tips"
+        "message_text": "Essential Tools for Self-Care"
+      },
+      {
+        "type": "list_group",
+        "rows": [
+          {
+            "type": "list_item",
+            "message_text": "RELAX"
+          },
+          {
+            "type": "text",
+            "message_text": "Do a 30 second quick relaxation activity. Here's one:"
+          },
+          {
+            "type": "list_item",
+            "message_text": "1. Close your eyes. \n2. Listen to your breath as it goes in and out five times. \n3. Notice how you feel. \n4. When you are ready open your eyes again. You are in control!"
+          },
+          {
+            "type": "list_item",
+            "message_text": "RECOGNISE"
+          },
+          {
+            "type": "text",
+            "message_text": "Take a moment and think of one thing YOU have done recently that you have done well! Say it aloud if you can ‘Well done for …\""
+          },
+          {
+            "type": "list_item",
+            "message_text": "REWARD"
+          },
+          {
+            "type": "text",
+            "message_text": "Remember you deserve your quality time too! What makes you happy?"
+          }
+        ]
+      },
+      {
+        "type": "text",
+        "message_text": "Tap your ParentPoints <icon>, <icon>, <icon>: see your success!",
+        "comment": "Requires icons"
+      }
+    ]
+  },
+  {
+    "flow_type": "tips",
+    "module": "1on1",
+    "flow_name": "mod_1on1_tips",
+    "title": "One-on-One Time Tools",
+    "status": "released",
+    "rows": [
+      {
+        "type": "title",
+        "message_text": "Essential Tools for One-on-One Time"
       },
       {
         "type": "list_group",
         "rows": [
           {
             "type": "list_intro",
-            "message_text": "I have 3 tips to make your One-on-One Time great!"
+            "message_text": "3 tools to make your One-on-One Time great!"
           },
           {
             "type": "list_item",
@@ -303,7 +354,7 @@
           },
           {
             "type": "text",
-            "message_text": "Find 5 minutes (or more!) each day when your teen does not have something else they want to do. ."
+            "message_text": "Find 5 minutes (or more!) each day when your teen does not have something else they want to do."
           },
           {
             "type": "list_item",
@@ -326,19 +377,24 @@
       {
         "type": "text",
         "message_text": "One-on-One Time with your teen can be fun for you, too! It might even make you feel less stressed."
+      },
+      {
+        "type": "text",
+        "message_text": "Tap your ParentPoint <icon>: see your success!",
+        "comment": "plh_images/habits/habit_spend_time_icon.svg"
       }
     ]
   },
   {
     "flow_type": "tips",
-    "module": "PRAISE_AND_POSITIVE_REINFORCEMENT",
+    "module": "praise",
     "flow_name": "mod_praise_tips",
-    "title": "Praise Tips",
+    "title": "Praise Tools",
     "status": "released",
     "rows": [
       {
         "type": "title",
-        "message_text": "Praise top tips",
+        "message_text": "Essential Tools for Praise",
         "comment": "Image of teen sweeping, parent encouraging them  \n(hand on shoulder/high five)"
       },
       {
@@ -346,7 +402,7 @@
         "rows": [
           {
             "type": "list_item",
-            "message_text": "1. FIND IT"
+            "message_text": "1. SEE IT"
           },
           {
             "type": "text",
@@ -354,15 +410,15 @@
           },
           {
             "type": "list_item",
-            "message_text": "2. PRAISE IT"
+            "message_text": "2. SAY IT"
           },
           {
             "type": "text",
-            "message_text": "Be enthusiastic - Really mean it when you say it!"
+            "message_text": "Be enthusiastic - really mean it when you say it!"
           },
           {
             "type": "list_item",
-            "message_text": "3. FEED IT"
+            "message_text": "3. REPEAT IT"
           },
           {
             "type": "text",
@@ -373,76 +429,53 @@
       {
         "type": "text",
         "message_text": "You can also praise other adults in your household, too. Notice how they respond!"
+      },
+      {
+        "type": "text",
+        "message_text": "Tap your ParentPoint <icon>: see your success!",
+        "comment": "plh_images/habits/habit_praise_teen_icon.svg"
       }
     ]
   },
   {
     "flow_type": "tips",
-    "module": "POSITIVE_INSTRUCTIONS",
+    "module": "instruct",
     "flow_name": "mod_instruct_tips",
-    "title": "Positive Instructions Tips",
+    "title": "Positive Instructions Tools",
     "status": "released",
     "rows": [
       {
         "type": "title",
-        "message_text": "Positive Instructions Tips"
-      },
-      {
-        "type": "text",
-        "message_text": "It's hard to feel positive when our teenagers are driving us crazy. We often end up saying \"Stop doing that!\". But children are much more likely to do what we ask if we give them positive instructions and lots of praise for what they do right."
+        "message_text": "Essential Tools for Positive Instructions"
       },
       {
         "type": "list_group",
         "rows": [
           {
-            "type": "list_intro",
-            "message_text": "Here are 4 steps to help you get your children to follow your instructions more often:"
+            "type": "list_item",
+            "message_text": "1. GET REAL"
+          },
+          {
+            "type": "text",
+            "message_text": "Can your teen actually do what you are about to ask? It may be impossible for them to read quietly all day, but half an hour when you really need it is realistic."
           },
           {
             "type": "list_item",
-            "message_text": "Step 1. Get Your Teen's Attention"
+            "message_text": "2. GET POSITIVE"
           },
           {
             "type": "text",
-            "message_text": "Look at your teen and say their name when you give them an instruction. Really connect to them."
+            "message_text": "Smile, look them in the eye and use positive words. Praise them as soon as they start to do what you ask!"
           },
           {
             "type": "list_item",
-            "message_text": "Step 2. Be Specific, Positive, and Realistic!"
+            "message_text": "3. GET CLEAR"
           },
           {
             "type": "text",
-            "message_text": "Describe exactly what you want your teen to do. Say \"Please come home before 7pm\", instead of \"Come home in time\"."
-          },
-          {
-            "type": "text",
-            "message_text": "Use positive words when telling your teen what to do. Say \"Please put your clothes away in the cupboard\", instead of \"Don't make a mess\"."
-          },
-          {
-            "type": "text",
-            "message_text": "Can they actually do what you are asking them? It is very hard for anyone to keep quiet inside for a whole day but maybe they can keep quiet for 15 minutes."
-          },
-          {
-            "type": "list_item",
-            "message_text": "Step 3. Give Instructions One at a Time"
-          },
-          {
-            "type": "text",
-            "message_text": "Teens are much more likely to do what you ask if you break things up into smaller steps."
-          },
-          {
-            "type": "list_item",
-            "message_text": "Step 4. Praise Your Teens When They Follow Instructions"
-          },
-          {
-            "type": "text",
-            "message_text": "They will feel good about it and be more likely to follow instructions in the future!"
+            "message_text": "Often we know what we want in our head, but we don’t say it clearly enough. Say exactly what you want them to do. Try \"please come home by 7pm\" instead of \"Come home in time\"."
           }
         ]
-      },
-      {
-        "type": "text",
-        "message_text": "It will make a HUGE DIFFERENCE if you can learn these 4 simple steps!"
       }
     ]
   }

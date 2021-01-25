@@ -1,4 +1,8 @@
 import { of, BehaviorSubject } from "rxjs";
+import { HABIT_LIST } from "src/app/shared/services/data/data.service";
+import { HabitService } from "src/app/shared/services/habit/habit.service";
+import { ITaskEntry } from "src/app/shared/services/task/task-action.service";
+import { arrayToHashmap } from "src/app/shared/utils/utils";
 import { ChatMessage, IRapidProMessage } from "../../models";
 import { convertFromRapidProMsg } from "../../utils/message.converter";
 import { ContactFieldService } from "./contact-field.service";
@@ -23,7 +27,8 @@ export class RapidProOfflineFlow {
     public messages$: BehaviorSubject<ChatMessage[]>,
     public flowStatus$: BehaviorSubject<FlowStatusChange[]>,
     public contactFieldService: ContactFieldService,
-    public botTyping$: BehaviorSubject<boolean>
+    public botTyping$: BehaviorSubject<boolean>,
+    public habitService: HabitService
   ) {
     console.log("flowObject", flowObject);
     this.name = flowObject.name;
@@ -242,28 +247,29 @@ export class RapidProOfflineFlow {
 
     let regexResult: RegExpExecArray;
     // Match Rapid Pro Contact fixed variables
-    let contactVaraibleRegex = /@contact\.([0-9a-zA-Z\_]*)/gm;
-    while ((regexResult = contactVaraibleRegex.exec(template)) !== null) {
+    let atVaraibleRegex = /@([a-z]+)\.([0-9a-zA-Z\_]+)([\.]*[0-9a-zA-Z\_]*)/gm;
+    while ((regexResult = atVaraibleRegex.exec(template)) !== null) {
       let fullMatch = regexResult[0];
-      let fieldName = regexResult[1];
-      output = output.replace(fullMatch, await this.contactFieldService.getContactField(fieldName));
-    }
-
-    // Match Rapid Pro Contact fields
-    let contactFieldRegex = /@fields\.([0-9a-zA-Z\_]*)/gm;
-    while ((regexResult = contactFieldRegex.exec(template)) !== null) {
-      let fullMatch = regexResult[0];
-      let fieldName = regexResult[1];
-      output = output.replace(fullMatch, await this.contactFieldService.getContactField(fieldName));
-    }
-
-    // Match Result fields
-    let resultFieldRegex = /@results\.([0-9a-zA-Z\_]*)/gm;
-    while ((regexResult = resultFieldRegex.exec(template)) !== null) {
-      let fullMatch = regexResult[0];
-      let fieldName = regexResult[1];
-      output = output.replace(fullMatch, this.flowResults[fieldName]);
-      console.log("output", output);
+      let variableType = regexResult[1];
+      let fieldName = regexResult[2];
+      let subfieldName = regexResult[3] ? regexResult[3].substring(1) : null;
+      switch (variableType) {
+        case "contact":
+        case "fields": {
+          output = output.replace(fullMatch, await this.contactFieldService.getContactField(fieldName));
+          break;
+        }
+        case "results": {
+          output = output.replace(fullMatch, this.flowResults[fieldName]);
+          break;
+        }
+        case "habit": {
+          if (subfieldName === "weekly_count") {
+            output = output.replace(fullMatch, "" + await this.habitService.getHabitWeeklyCount(fieldName))
+          }
+          break;
+        }
+      }
     }
 
     return output;
