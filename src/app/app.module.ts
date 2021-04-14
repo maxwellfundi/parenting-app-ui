@@ -25,8 +25,9 @@ import { SurveyModule } from "src/app/feature/survey/survey.module";
 
 const introModules = [AppTermsPageModule, PrivacyPageModule];
 
-import {LottieModule} from "ngx-lottie";
+import { LottieModule } from "ngx-lottie";
 import player from "lottie-web";
+import { TourComponent } from "./feature/tour/tour.component";
 
 // Note we need a separate function as it's required
 // by the AOT compiler.
@@ -35,7 +36,7 @@ export function lottiePlayerFactory() {
 }
 
 @NgModule({
-  declarations: [AppComponent, ThemeEditorComponent],
+  declarations: [AppComponent, ThemeEditorComponent, TourComponent],
 
   entryComponents: [],
   imports: [
@@ -51,7 +52,7 @@ export function lottiePlayerFactory() {
     ColorSketchModule,
     ...introModules,
     SurveyModule,
-    LottieModule.forRoot({ player: lottiePlayerFactory, useCache: true })
+    LottieModule.forRoot({ player: lottiePlayerFactory, useCache: true }),
   ],
   providers: [{ provide: RouteReuseStrategy, useClass: IonicRouteStrategy }, HTTP, Device],
   bootstrap: [AppComponent],

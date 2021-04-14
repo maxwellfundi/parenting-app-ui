@@ -1,4 +1,4 @@
-/* tslint:disable */
+/* eslint-disable */
   import { FlowTypes } from "src/app/shared/model/flowTypes";
   export const module_page: FlowTypes.Module_page[] = [
   {
@@ -18,6 +18,7 @@
         "text": "Self Care"
       },
       {
+        "row_id": 3,
         "type": "step_group",
         "rows": [
           {
@@ -46,7 +47,8 @@
           }
         ]
       }
-    ]
+    ],
+    "_xlsxPath": "plh_sheets_beta/ver_7_design/navigation/module_pages.xlsx"
   },
   {
     "flow_type": "module_page",
@@ -65,6 +67,7 @@
         "text": "One-on-one Time"
       },
       {
+        "row_id": 3,
         "type": "step_group",
         "rows": [
           {
@@ -105,7 +108,8 @@
           }
         ]
       }
-    ]
+    ],
+    "_xlsxPath": "plh_sheets_beta/ver_7_design/navigation/module_pages.xlsx"
   },
   {
     "flow_type": "module_page",
@@ -124,6 +128,7 @@
         "text": "Praise & Positive Reinforcement"
       },
       {
+        "row_id": 3,
         "type": "step_group",
         "rows": [
           {
@@ -164,7 +169,8 @@
           }
         ]
       }
-    ]
+    ],
+    "_xlsxPath": "plh_sheets_beta/ver_7_design/navigation/module_pages.xlsx"
   },
   {
     "flow_type": "module_page",
@@ -183,6 +189,7 @@
         "text": "Positive Instructions"
       },
       {
+        "row_id": 3,
         "type": "step_group",
         "rows": [
           {
@@ -223,7 +230,8 @@
           }
         ]
       }
-    ]
+    ],
+    "_xlsxPath": "plh_sheets_beta/ver_7_design/navigation/module_pages.xlsx"
   },
   {
     "flow_type": "module_page",
@@ -242,6 +250,7 @@
         "text": "Managing Anger & Stress"
       },
       {
+        "row_id": 3,
         "type": "step_group",
         "rows": [
           {
@@ -288,6 +297,7 @@
           }
         ]
       }
-    ]
+    ],
+    "_xlsxPath": "plh_sheets_beta/ver_7_design/navigation/module_pages.xlsx"
   }
 ]

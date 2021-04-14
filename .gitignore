@@ -34,7 +34,7 @@ google-services.json
 
 resources/android
 resources/ios
-package-lock.lock
+package-lock.json
 src/environments/firebaseConfig.ts
 **/*.jks
 .firebase
@@ -46,3 +46,4 @@ src/environments/firebaseConfig.ts
 
 .env
 scripts/config/token.json
+.eslintcache

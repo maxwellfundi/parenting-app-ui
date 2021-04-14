@@ -1,4 +1,4 @@
-/* tslint:disable */
+/* eslint-disable */
   import { FlowTypes } from "src/app/shared/model/flowTypes";
   export const module_list: FlowTypes.Module_list[] = [
   {
@@ -53,7 +53,7 @@
       },
       {
         "module_number": 5,
-        "id": "mod_budgeting",
+        "id": "mod_money",
         "title": "Family Budgeting",
         "title_short": "Money",
         "icon_asset": "assets/plh_assets/plh_images/modules/mod_budgeting/icon.svg"
@@ -93,6 +93,7 @@
         "title_short": "Crisis",
         "icon_asset": "assets/plh_assets/plh_images/modules/mod_crisis/icon.svg"
       }
-    ]
+    ],
+    "_xlsxPath": "plh_sheets_beta/ver_7_design/navigation/module_pages.xlsx"
   }
 ]

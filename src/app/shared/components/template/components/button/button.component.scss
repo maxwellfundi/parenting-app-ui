@@ -1,0 +1,97 @@
+:host {
+  width: 100%;
+  ion-button {
+    height: 100%;
+  }
+  span {
+    padding: 5px 0;
+  }
+}
+ion-button {
+  font-size: 25px;
+  font-family: Roboto, sans-serif;
+  font-weight: 500;
+  color: var(--ion-color-primary-contrast);
+  text-transform: none;
+  white-space: pre-line;
+  min-height: 65px;
+  padding: var(--regular-padding);
+  --border-radius: 15px;
+  --box-shadow: var(--ion-btn-dark-box-shadow);
+  display: flex;
+  width: fit-content;
+  margin: 0 auto;
+}
+
+ion-button::part(native) {
+  height: auto;
+}
+
+ion-button:disabled,
+ion-button[disabled] {
+  filter: brightness(55%);
+}
+
+.navigation {
+  --background: var(--ion-btn-secondary);
+}
+
+.information {
+  --background: var(--ion-btn-primary);
+}
+
+.make_me_smile {
+  --background: var(--ion-btn-primary);
+  color: var(--ion-color-primary-contrast);
+}
+
+.get_me_going {
+  --background: var(--ion-btn-secondary);
+  color: var(--ion-color-primary-contrast);
+}
+
+.options {
+  --background: var(--ion-gradient-option-btn);
+  color: var(--ion-color-primary-contrast);
+}
+
+.standard {
+  color: var(--ion-color-primary-contrast);
+}
+.alternative {
+  color: var(--ion-color-primary);
+}
+
+.left {
+  margin: 0 auto 0 2px;
+}
+.right {
+  margin: 0 2px 0 auto;
+}
+
+// width
+.full {
+  width: 100%;
+}
+.flexible {
+  width: fit-content;
+  max-width: 100%;
+}
+// height
+.medium {
+  min-height: 65px;
+}
+.short {
+  min-height: 50px;
+  font-size: 20px;
+}
+.tall {
+  min-height: 80px;
+}
+
+.medium_round {
+  --border-radius: 20px;
+}
+.no_shadow {
+  --box-shadow: none;
+}

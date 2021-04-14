@@ -1,4 +1,4 @@
-/* tslint:disable */
+/* eslint-disable */
   import { FlowTypes } from "src/app/shared/model/flowTypes";
   export const care_package_list: FlowTypes.Care_package_list[] = [
   {
@@ -42,6 +42,7 @@
           "habit_safe"
         ]
       }
-    ]
+    ],
+    "_xlsxPath": "plh_sheets_beta/ver_7_design/habits/care_packages.xlsx"
   }
 ]

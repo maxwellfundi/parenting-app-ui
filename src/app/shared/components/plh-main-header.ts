@@ -13,16 +13,27 @@ import { Subscription } from "rxjs";
           <ion-icon name="chevron-back-outline" slot="icon-only"></ion-icon>
         </ion-button>
       </ion-buttons>
-      <ion-title style="text-align: center">
+      <ion-title style="text-align: center" routerLink="/">
         <ion-icon src="assets/images/star.svg" style="margin: -1px 8px"></ion-icon>
         <span>{{ title }}</span>
       </ion-title>
+      <ion-buttons slot="end">
+        <plh-debug-toggle *ngIf="showDebugToggle"></plh-debug-toggle>
+        <ion-button routerLink="/reminders"
+          ><ion-icon slot="icon-only" name="notifications-outline"></ion-icon
+        ></ion-button>
+        <ion-button routerLink="/template"
+          ><ion-icon slot="icon-only" name="list-circle-outline"></ion-icon
+        ></ion-button>
+      </ion-buttons>
     </ion-toolbar>
   </ion-header>`,
 })
 export class PLHMainHeaderComponent implements OnInit, OnDestroy {
   isHomePage = true;
   @Input() title: string = "ParentApp";
+  // TODO - link debug toggle to build environment or advanced setting (hide for general users)
+  showDebugToggle = true;
   routeChanges$: Subscription;
   /** track if navigation has been used to handle back button click behaviour */
   hasBackHistory = false;
@@ -49,7 +60,7 @@ export class PLHMainHeaderComponent implements OnInit, OnDestroy {
   handleRouteChange() {
     // As component sits outside main ion-router-outlet need to access via firstChild method
     // if wanting to access route params directly (not currently required)
-    const HOME_ROUTE = "/module_list";
+    const HOME_ROUTE = "/home";
     // track if home page, allowing case where hosted from subdirectory (e.g. our pr preview system)
     this.isHomePage = location.pathname.endsWith(HOME_ROUTE);
   }

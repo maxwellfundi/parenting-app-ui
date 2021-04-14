@@ -2,7 +2,7 @@ import * as fs from "fs-extra";
 import * as xlsx from "xlsx";
 import * as path from "path";
 import chalk from "chalk";
-import { ConversationParser, DefaultParser } from "./parsers";
+import { ConversationParser, DefaultParser, TemplateParser } from "./parsers";
 import {
   groupJsonByKey,
   recursiveFindByExtension,
@@ -12,6 +12,7 @@ import {
 import { FlowTypes } from "../../types";
 import { AbstractParser } from "./parsers/abstract.parser";
 import { TaskListParser } from "./parsers/task_list/task_list.parser";
+import { ReminderListParser } from "./parsers/reminder_list/reminder_list.parser";
 
 const INPUT_FOLDER = path.join(__dirname, "../gdrive-download/output");
 const INTERMEDIATES_FOLDER = `${__dirname}/intermediates`;
@@ -24,7 +25,7 @@ const DEPLOY_TARGET: "app" | "rapidpro" = "app";
  * Reads xlsx files from gdrive-download output and converts to json
  * objects representing sheet names and data values
  */
-async function main() {
+export async function main() {
   console.log(chalk.yellow("Converting PLH Data"));
   fs.ensureDirSync(INPUT_FOLDER);
   fs.ensureDirSync(INTERMEDIATES_FOLDER);
@@ -38,7 +39,7 @@ async function main() {
     const json = convertXLSXSheetsToJson(xlsxPath);
     combined.push({ json, xlsxPath });
   }
-  // merge and collage plh data, write some extra files for logging/debugging purposes
+  // merge and collate plh data, write some extra files for logging/debugging purposes
   const merged = mergePLHData(combined);
   fs.writeFileSync(`${INTERMEDIATES_FOLDER}/merged.json`, JSON.stringify(merged, null, 2));
   const dataByFlowType = groupJsonByKey(merged, "flow_type");
@@ -59,12 +60,15 @@ async function main() {
   });
   console.log(chalk.yellow("Conversion Complete"));
 }
-main()
-  .catch((err) => {
-    console.error(err);
-    process.exit(1);
-  })
-  .then(() => console.log(chalk.green("PLH Data Converted")));
+
+if (process.argv[1] && process.argv[1].indexOf("sync-single") < 0) {
+  main()
+    .catch((err) => {
+      console.error(err);
+      process.exit(1);
+    })
+    .then(() => console.log(chalk.green("PLH Data Converted")));
+}
 
 function applyDataParsers(
   dataByFlowType: { [type in FlowTypes.FlowType]: FlowTypes.FlowTypeWithData[] }
@@ -79,6 +83,8 @@ function applyDataParsers(
   const customParsers: { [flowType in FlowTypes.FlowType]?: AbstractParser } = {
     conversation: new ConversationParser(),
     task_list: new TaskListParser(dataByFlowType, allTasksById),
+    reminder_list: new ReminderListParser(),
+    template: new TemplateParser(),
   };
   const parsedData = {};
   Object.entries(dataByFlowType).forEach(([key, contentFlows]) => {
@@ -120,7 +126,9 @@ function mergePLHData(jsons: { json: any; xlsxPath: string }[]) {
               console.log(chalk.yellow("duplicate flow:", flow_name));
             }
             // console.log(chalk.green("+", flow_name));
-            merged[flow_name] = { ...contents, rows: json[flow_name] };
+            // Ensure all paths use / to match HTTP style paths
+            const _xlsxPath = path.relative(INPUT_FOLDER, xlsxPath).replace(/\\/g, "/");
+            merged[flow_name] = { ...contents, rows: json[flow_name], _xlsxPath };
           } else {
             console.log(chalk.red("No Contents:", flow_name));
           }
@@ -149,6 +157,20 @@ function convertXLSXSheetsToJson(xlsxFilePath: string) {
   const workbook = xlsx.readFile(xlsxFilePath);
   const { Sheets } = workbook;
   Object.entries(Sheets).forEach(([sheet_name, worksheet]) => {
+    /* If bold or italics, include HTML in cell value */
+    Object.keys(worksheet).forEach((cellId) => {
+      let html = worksheet[cellId]?.h;
+      if (
+        html !== undefined &&
+        typeof html === "string" &&
+        (html.indexOf("<b>") > -1 || html.indexOf("<em>") > -1 || html.indexOf("<i>") > -1)
+      ) {
+        console.log("Formatting?", html);
+        html = html.replace(/<span[^>]*>/g, "<span>"); // Remove span style
+        worksheet[cellId].v = html;
+      }
+    });
+
     json[sheet_name] = xlsx.utils.sheet_to_json(worksheet);
   });
   return json;
@@ -160,7 +182,7 @@ function convertXLSXSheetsToJson(xlsxFilePath: string) {
  */
 function generateLocalTsOutput(json: any, flow_type: FlowTypes.FlowType) {
   const typeName = capitalizeFirstLetter(flow_type);
-  return `/* tslint:disable */
+  return `/* eslint-disable */
   import { FlowTypes } from "../../../types";
   export const ${flow_type}: FlowTypes.${typeName}[] = ${json}`;
 }
