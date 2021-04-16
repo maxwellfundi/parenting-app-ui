@@ -338,22 +338,25 @@
         "type": "declare_global_constant",
         "name": "w_rules",
         "value": "Rules",
-        "comments": "checking"
+        "comments": "individual done"
       },
       {
         "type": "declare_global_constant",
         "name": "w_consequence",
-        "value": "Calm Consequences"
+        "value": "Calm Consequences",
+        "comments": "individual done"
       },
       {
         "type": "declare_global_constant",
         "name": "w_solve",
-        "value": "Problem Solving"
+        "value": "Problem Solving",
+        "comments": "individual done"
       },
       {
         "type": "declare_global_constant",
         "name": "w_safe",
-        "value": "Teen Safety"
+        "value": "Teen Safety",
+        "comments": "individual done"
       },
       {
         "type": "declare_global_constant",
@@ -488,8 +491,23 @@
       },
       {
         "type": "declare_global_constant",
-        "name": "w_consequence_teen_boy",
+        "name": "w_consequence_teen_boy_1",
         "value": "Amani"
+      },
+      {
+        "type": "declare_global_constant",
+        "name": "w_consequence_teen_boy_2",
+        "value": "Baraka"
+      },
+      {
+        "type": "declare_global_constant",
+        "name": "w_consequence_teen_girl_1",
+        "value": "Faraja"
+      },
+      {
+        "type": "declare_global_constant",
+        "name": "w_consequence_teen_girl_2",
+        "value": "Shukuru"
       },
       {
         "type": "declare_global_constant",
@@ -652,23 +670,23 @@
     "rows": [
       {
         "type": "declare_field_default",
-        "name": "w_self-care_completion_level",
-        "value": 0
+        "name": "w_self_care_completion_level",
+        "value": 100
       },
       {
         "type": "declare_field_default",
         "name": "w_1on1_completion_level",
-        "value": 0
+        "value": 100
       },
       {
         "type": "declare_field_default",
         "name": "w_praise_completion_level",
-        "value": 0
+        "value": 100
       },
       {
         "type": "declare_field_default",
         "name": "w_instruct_completion_level",
-        "value": 0
+        "value": 70
       },
       {
         "type": "declare_field_default",
@@ -687,7 +705,7 @@
       },
       {
         "type": "declare_field_default",
-        "name": "w_responsibility_completion_level",
+        "name": "w_consequence_completion_level",
         "value": 0
       },
       {
@@ -707,23 +725,128 @@
       },
       {
         "type": "declare_field_default",
-        "name": "w_week1_unlocked",
+        "name": "w_celebrate_completion_level",
+        "value": 0
+      },
+      {
+        "type": "declare_field_default",
+        "name": "w_self_care_status",
+        "value": "uncompleted"
+      },
+      {
+        "type": "declare_field_default",
+        "name": "w_1on1_completion_status",
+        "value": "uncompleted"
+      },
+      {
+        "type": "declare_field_default",
+        "name": "w_praise_completion_status",
+        "value": "uncompleted"
+      },
+      {
+        "type": "declare_field_default",
+        "name": "w_instruct_completion_status",
+        "value": "uncompleted"
+      },
+      {
+        "type": "declare_field_default",
+        "name": "w_stress_completion_status",
+        "value": "uncompleted"
+      },
+      {
+        "type": "declare_field_default",
+        "name": "w_money_completion_status",
+        "value": "uncompleted"
+      },
+      {
+        "type": "declare_field_default",
+        "name": "w_rules_completion_status",
+        "value": "uncompleted"
+      },
+      {
+        "type": "declare_field_default",
+        "name": "w_consequence_completion_status",
+        "value": "uncompleted"
+      },
+      {
+        "type": "declare_field_default",
+        "name": "w_solve_completion_status",
+        "value": "uncompleted"
+      },
+      {
+        "type": "declare_field_default",
+        "name": "w_safe_completion_status",
+        "value": "uncompleted"
+      },
+      {
+        "type": "declare_field_default",
+        "name": "w_crisis_completion_status",
+        "value": "uncompleted"
+      },
+      {
+        "type": "declare_field_default",
+        "name": "w_celebrate_completion_status",
+        "value": "uncompleted"
+      },
+      {
+        "type": "declare_field_default",
+        "name": "w_self_care_disabled",
+        "value": false
+      },
+      {
+        "type": "declare_field_default",
+        "name": "w_1on1_disabled",
+        "value": false
+      },
+      {
+        "type": "declare_field_default",
+        "name": "w_praise_disabled",
+        "value": false
+      },
+      {
+        "type": "declare_field_default",
+        "name": "w_instruct_disabled",
+        "value": false
+      },
+      {
+        "type": "declare_field_default",
+        "name": "w_stress_disabled",
         "value": true
       },
       {
         "type": "declare_field_default",
-        "name": "w_week2_unlocked",
-        "value": false
+        "name": "w_money_disabled",
+        "value": true
       },
       {
         "type": "declare_field_default",
-        "name": "w_week3_unlocked",
-        "value": false
+        "name": "w_rules_disabled",
+        "value": true
       },
       {
         "type": "declare_field_default",
-        "name": "w_week4_unlocked",
-        "value": false
+        "name": "w_consequence_disabled",
+        "value": true
+      },
+      {
+        "type": "declare_field_default",
+        "name": "w_solve_disabled",
+        "value": true
+      },
+      {
+        "type": "declare_field_default",
+        "name": "w_safe_disabled",
+        "value": true
+      },
+      {
+        "type": "declare_field_default",
+        "name": "w_crisis_disabled",
+        "value": true
+      },
+      {
+        "type": "declare_field_default",
+        "name": "w_celebrate_disabled",
+        "value": true
       }
     ],
     "_xlsxPath": "plh_sheets_beta/plh_templating/top_templates/workshop_templates/global_variables_workshops.xlsx"
@@ -762,6 +885,16 @@
         "type": "declare_field_default",
         "name": "user_name",
         "value": "Lucie"
+      },
+      {
+        "type": "declare_field_default",
+        "name": "workshop_day",
+        "value": "Monday"
+      },
+      {
+        "type": "declare_field_default",
+        "name": "current_workshop",
+        "value": "Positive Instructions"
       }
     ],
     "_xlsxPath": "plh_sheets_beta/plh_templating/top_templates/workshop_templates/global_variables_workshops.xlsx"
