@@ -230,6 +230,15 @@ p {
   background: var(--ion-banner-primary);
 }
 
+.banner_light {
+  color: var(--ion-color-primary);
+  margin-top: var(--regular-margin);
+  border-radius: 20px;
+  width: 100%;
+  margin: 0 auto 5px auto;
+  background: var(--ion-color-primary-contrast);
+}
+
 .banner_welcome {
   margin-top: var(--regular-margin);
   border-radius: 20px;
@@ -240,8 +249,11 @@ p {
     margin-bottom: -30px !important;
   }
   .offset {
-    plh-template-component:first-child {
-      max-width: 220px;
+    plh-template-component > .plh-tmpl-comp > plh-tmpl-image > .tmpl-image-container {
+      height: 220px;
+      &.margin-t-regular {
+        margin-top: 0 !important;
+      }
     }
   }
   &.active {
@@ -259,15 +271,22 @@ p {
   margin-bottom: 30px !important;
   background: var(--ion-banner-primary);
   padding: 0 24px;
-  min-height: 115px;
+  min-height: var(--banner-short-height);
+  max-height: var(--banner-short-height);
   .offset {
     plh-template-component:first-child {
       flex: 2;
+      padding: 0 15px 15px 0;
     }
     plh-template-component:last-child {
       flex: 1;
-      min-width: 100px;
+      min-width: 75px;
       max-width: fit-content;
+      .plh-tmpl-comp > plh-tmpl-image > .tmpl-image-container {
+        &.margin-t-regular {
+          margin-top: 0 !important;
+        }
+      }
     }
   }
   &.active {
